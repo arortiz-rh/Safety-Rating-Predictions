@@ -1,0 +1,17 @@
+Feature Key
+-1, Was not avaliable with no option to be avaliable
+0, Could be avaliable but is not
+1, Could be avaliable and is
+
+XYZ, Driver, Passenger Rear
+
+Kerb Weight is measured in Kilograms
+
+Star Key
+1, Is 5 stars
+0, Is not 5 stars
+
+Columns Ordered
+Star,Kerb Weight, Active Bonnet, Lane Assist System, AEB Pedestrian, Center Airbag, Side Pelvis Airbag, Side Chest Airbag, Belt Pretensioner, Knee Airbag
+
+Total Dataset Size: 337
