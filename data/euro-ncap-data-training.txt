@@ -1,3 +1,4 @@
+Star,Kerb Weight,Active Bonnet,Lane Assist System,AEB Pedestrian,Center Airbag,Side Pelvis Airbag,Side Chest Airbag,Belt Pretensioner,Knee Airbag
 1,1646,0,1,1,-1-1-1,110,110,111,00-1
 1,2065,1,1,1,-1-1-1,110,110,110,00-1
 1,2180,1,1,1,-1-1-1,000,110,111,000
