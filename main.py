@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import f1_score
 
 def main():
     # Loading data from files
@@ -22,8 +24,25 @@ def main():
 
     y_pred = model.predict(X_testing)
     accuracy = accuracy_score(y_testing, y_pred)
-    
+    precision = precision_score(y_testing, y_pred)
+    f1 = f1_score(y_testing, y_pred)
+
+    print("Metrics\n--------------------------------")
     print("Accuracy: ", accuracy)
+    print("Precision: ", precision)
+    print("F1: ", f1)
+
+    print("\nFeature Weights\n--------------------------------")
+    weights = model.coef_[0]   # array of coefficients
+    labels = X_training.columns
+
+    coef_df = pd.DataFrame({"Feature": labels, "Weight": weights})
+
+    coef_df["AbsWeight"] = coef_df["Weight"].abs()
+    coef_df = coef_df.sort_values(by="AbsWeight", ascending=False)
+
+    # These weights are from the unscalled model. While most will be accurate, the kerb weights weight will be really small.
+    print(coef_df.to_string(index=False))
 
 # Present because when collecting the data, I made it so that there were strings of 3 integer values (example: -1-1-1), but upon testing
 # this doesn't work for Logistic Regression which requires fully numeric values.
@@ -38,6 +57,5 @@ def split_columns(columns, data):
         data = pd.concat([data.drop(columns=[col]), split_df], axis=1)
     
     return data
-
 
 main()
