@@ -1,8 +1,11 @@
 import pandas as pd
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import StandardScaler
 
 def main():
     # Loading data from files
@@ -19,30 +22,39 @@ def main():
     X_testing = testing_data.drop("Star", axis=1)
     y_testing = testing_data["Star"]
 
-    model = LogisticRegression(max_iter=800) # The default is 100 iterations, but unless it needed to be higher to stablize weights.
+    # An unbalanced model is balance to converage on weights within 800 iterations.
+    # A balanced model requires more than 800 iterations.
+    model = LogisticRegression(max_iter=1000, class_weight="balanced")
     model.fit(X_training, y_training)
 
-    y_pred = model.predict(X_testing)
-    accuracy = accuracy_score(y_testing, y_pred)
-    precision = precision_score(y_testing, y_pred)
-    f1 = f1_score(y_testing, y_pred)
+    y_pred_unscaled = model.predict(X_testing)
+    accuracy_unscaled = accuracy_score(y_testing, y_pred_unscaled)
+    precision_unscaled = precision_score(y_testing, y_pred_unscaled)
+    f1_unscaled = f1_score(y_testing, y_pred_unscaled)
 
-    print("Metrics\n--------------------------------")
-    print("Accuracy: ", accuracy)
-    print("Precision: ", precision)
-    print("F1: ", f1)
+    print("\nUNSCALED MODEL\n")
+    produce_model_output(accuracy_unscaled, precision_unscaled, f1_unscaled, model, X_training)
 
-    print("\nFeature Weights\n--------------------------------")
-    weights = model.coef_[0]   # array of coefficients
-    labels = X_training.columns
+    # This helps look at what kind of predicitions the model got right and wrong.
+    print("\nConfusion Matrix\n--------------------------------")
+    print_confusion_matrix(y_testing, y_pred_unscaled)
 
-    coef_df = pd.DataFrame({"Feature": labels, "Weight": weights})
+    print("\nSCALED MODEL\n")
+    scaler = StandardScaler()
+    X_training_scaled = scaler.fit_transform(X_training)
+    X_testing_scaled = scaler.transform(X_testing)
+    
+    model.fit(X_training_scaled, y_training)
+    
+    y_pred_scaled = model.predict(X_testing_scaled)
+    accuracy_scaled = accuracy_score(y_testing, y_pred_scaled)
+    precision_scaled = precision_score(y_testing, y_pred_scaled)
+    f1_scaled = f1_score(y_testing, y_pred_scaled)
 
-    coef_df["AbsWeight"] = coef_df["Weight"].abs()
-    coef_df = coef_df.sort_values(by="AbsWeight", ascending=False)
+    produce_model_output(accuracy_scaled, precision_scaled, f1_scaled, model, X_training)
 
-    # These weights are from the unscalled model. While most will be accurate, the kerb weights weight will be really small.
-    print(coef_df.to_string(index=False))
+    print("\nConfusion Matrix\n--------------------------------")
+    print_confusion_matrix(y_testing, y_pred_scaled)
 
 # Present because when collecting the data, I made it so that there were strings of 3 integer values (example: -1-1-1), but upon testing
 # this doesn't work for Logistic Regression which requires fully numeric values.
@@ -57,5 +69,37 @@ def split_columns(columns, data):
         data = pd.concat([data.drop(columns=[col]), split_df], axis=1)
     
     return data
+
+def print_confusion_matrix(y_true, y_pred):
+    cm = confusion_matrix(y_true, y_pred)
+
+    tn, fp, fn, tp = cm.ravel()
+
+    print(f"True Negatives : {tn}")
+    print(f"False Positives: {fp}")
+    print(f"False Negatives: {fn}")
+    print(f"True Positives : {tp}")
+
+    print("\nMatrix:")
+    print("                Predicted 0    Predicted 1")
+    print(f"Actual 0        {tn:12d} {fp:12d}")
+    print(f"Actual 1        {fn:12d} {tp:12d}")
+
+def produce_model_output(accuracy, precision, f1, model, X_training):
+    print("Metrics\n--------------------------------")
+    print("Accuracy: ", accuracy)
+    print("Precision: ", precision)
+    print("F1: ", f1)
+
+    print("\nFeature Weights\n--------------------------------")
+    weights = model.coef_[0] # array of coefficients
+    labels = X_training.columns
+
+    coef_df = pd.DataFrame({"Feature": labels, "Weight": weights})
+
+    coef_df["AbsWeight"] = coef_df["Weight"].abs()
+    coef_df = coef_df.sort_values(by="AbsWeight", ascending=False)
+
+    print(coef_df.to_string(index=False))
 
 main()
