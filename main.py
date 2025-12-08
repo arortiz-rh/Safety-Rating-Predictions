@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import f1_score
+from sklearn.metrics import recall_score
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import StandardScaler
 
@@ -30,10 +31,11 @@ def main():
     y_pred_unscaled = model.predict(X_testing)
     accuracy_unscaled = accuracy_score(y_testing, y_pred_unscaled)
     precision_unscaled = precision_score(y_testing, y_pred_unscaled)
+    recall_unscaled = recall_score(y_testing, y_pred_unscaled)
     f1_unscaled = f1_score(y_testing, y_pred_unscaled)
 
     print("\nUNSCALED MODEL\n")
-    produce_model_output(accuracy_unscaled, precision_unscaled, f1_unscaled, model, X_training)
+    produce_model_output(accuracy_unscaled, precision_unscaled, recall_unscaled, f1_unscaled, model, X_training)
 
     # This helps look at what kind of predicitions the model got right and wrong.
     print("\nConfusion Matrix\n--------------------------------")
@@ -49,9 +51,10 @@ def main():
     y_pred_scaled = model.predict(X_testing_scaled)
     accuracy_scaled = accuracy_score(y_testing, y_pred_scaled)
     precision_scaled = precision_score(y_testing, y_pred_scaled)
+    recall_scaled = recall_score(y_testing, y_pred_scaled)
     f1_scaled = f1_score(y_testing, y_pred_scaled)
 
-    produce_model_output(accuracy_scaled, precision_scaled, f1_scaled, model, X_training)
+    produce_model_output(accuracy_scaled, precision_scaled, recall_scaled, f1_scaled, model, X_training)
 
     print("\nConfusion Matrix\n--------------------------------")
     print_confusion_matrix(y_testing, y_pred_scaled)
@@ -85,10 +88,11 @@ def print_confusion_matrix(y_true, y_pred):
     print(f"Actual 0        {tn:12d} {fp:12d}")
     print(f"Actual 1        {fn:12d} {tp:12d}")
 
-def produce_model_output(accuracy, precision, f1, model, X_training):
+def produce_model_output(accuracy, precision, recall, f1, model, X_training):
     print("Metrics\n--------------------------------")
     print("Accuracy: ", accuracy)
     print("Precision: ", precision)
+    print("Recall: ", recall)
     print("F1: ", f1)
 
     print("\nFeature Weights\n--------------------------------")
